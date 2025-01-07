@@ -47,7 +47,6 @@ class new_screen:
                         return False,z
         return False,player
 class block:
-    screen=new_screen
     def __init__(self,x_cord:int,y_cord:int,color:tuple,screen:new_screen,ocupation=None):
         self.is_wall=True
         self.x_cord=x_cord
