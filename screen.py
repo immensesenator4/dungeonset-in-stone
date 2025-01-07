@@ -90,7 +90,7 @@ class floor():
             self.list_of_rect [self.find_listnumswith(new_pos)[0]][self.find_listnumswith(new_pos)[1]].color=(10,90,70)
 
     def get_relevant_keys(self,player): 
-        events = pygame.event.get().copy()
+        events = pygame.event.get()
         key = pygame.key.get_pressed() 
 
                 
@@ -123,15 +123,18 @@ class floor():
                 player = temp_anew
                         
         return player
-    def key(self,functions:tuple,*keys:int):
+    def key(self,functions:tuple,*keys:int,args:tuple=()):
+        events = pygame.event.get()
         key = pygame.key.get_pressed()
         count=0
         for ifstatement in keys:
-            if key[ifstatement]:
-                self.functions[functions[count]]
+            if key[ifstatement]and len(args)>0 :
+                 self.functions[functions[count]](args[count])
+            elif key[ifstatement]:
+                self.functions[functions[count]]()
             count+=1
     def add_func(Self,new_func,name:str):
-        Self.functions[name]=new_func()
+        Self.functions[name]=new_func
     def move(self,cord1:tuple,cord2:tuple):
         
         tupleofdestiny=[]
@@ -151,8 +154,8 @@ class floor():
                 self.list_of_rect[y][x].y_cord+=tupleofdestiny[1]
                 self.list_of_rect[y][x].y2+=tupleofdestiny[1]
     def wall_demolisher(self,x_s:int,y_s:int):
-        x=0
-        y=0
+        x=int(dimensions[0]/48)
+        y=int(dimensions[1]/48)
         size = int((x_s*y_s)/random.randint(4,16))
         while size!=0:
             s=random.randint(0,4)
