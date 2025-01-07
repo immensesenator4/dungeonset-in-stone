@@ -3,6 +3,8 @@ import pygame, sys
 from argparse import Action
 import time
 import random
+from dungeon import*
+from screen import*
 class building_blocks(object):
     def __init__(build,name:str,cons:int,musclemass:int,muscle_density:int,teq:int,bonedensity:int,magic_pow:int,magic_teq:int,height:int,will_power:int,likability:int,visualacuity:int,bloodensity:int,motor_control:int, hand_eye_cordination:int) -> None:                                                      
         build.x=0
@@ -148,6 +150,11 @@ class building_blocks(object):
     def take_damage(build):
         build.hp-=build.damage
         build.damage=0
+    def search(build,floor:floor):
+        for y in range(0,len(floor.list_of_rect)):
+            for x in range(0,len(floor.list_of_rect[y])):
+                floor.list_of_rect[y][x].color=floor.list_of_rect[y][x].old_color
+
 class Player(building_blocks):
     def __init__(play,name, cons, musclemass, muscle_density, teq, bonedensity, magic_pow, magic_teq, height, will_power, likability, visualacuity, bloodensity, motor_control, hand_eye_cordination,level) -> None:
         super().__init__(name,cons, musclemass, muscle_density, teq, bonedensity, magic_pow, magic_teq, height, will_power, likability, visualacuity, bloodensity, motor_control, hand_eye_cordination)
