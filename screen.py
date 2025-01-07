@@ -90,6 +90,7 @@ class floor():
             self.list_of_rect [self.find_listnumswith(new_pos)[0]][self.find_listnumswith(new_pos)[1]].color=(10,90,70)
 
     def get_relevant_keys(self,player): 
+        events = pygame.event.get().copy()
         key = pygame.key.get_pressed() 
 
                 
