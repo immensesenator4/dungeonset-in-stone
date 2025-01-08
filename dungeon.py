@@ -10,11 +10,18 @@ class dungeon(object):
         dungeon.currentfloor=0
         x=0
         y=0
+        dungeon.initiate_dungeon()
         for dungeons in dungeon.floors:
             y+=dungeons.y_detirminer
             x+=dungeons.x_detirminer
+        print(x)
+        print(y)
+        print(dungeon.flooramnt)
         dungeon.size=x*y*dungeon.flooramnt
-        dungeon.max_time= random.randint(dungeon.size*4,dungeon.size)
+        dungeon.max_time= int((random.randint(dungeon.size,dungeon.size*4))/10)
+    def add_time(dungeon,num):
+        dungeon.time+=num
+        return 0
     def initiate_dungeon(dungeon):
         for i in range(0,dungeon.flooramnt):
             dungeon.floors.append(floor(dungeon.screen,i,dungeon.flooramnt))
@@ -28,6 +35,11 @@ class dungeon(object):
             dungeon.move_down()
         elif current_dungeon.player.ocupation=="up floor":
             dungeon.move_up()
+    def time_checker(dungeon):
+        if dungeon.time>dungeon.max_time:
+            return False
+        else:
+            return True
     def key(self,functions:tuple,*keys:int,args:tuple=()):
         events = pygame.event.get()
         key = pygame.key.get_pressed()
@@ -75,15 +87,15 @@ class floor(object):
         newposx=self.find_listnumswith(new_pos)[1]
         mult=self.dir_multiplier[self.direction]
         #this is bugged this is suposed to put  4*5 in front of the player a 2*3 behind the player and a 4*3 on the sides
-        for x in range(0,3):
+        for x in range(0,2):
             for y in range(-2,2):
                 if self.direction=="east"or "west":
-                    self.list_of_rect [new_posy+y+1] [newposx+x+1].color=self.list_of_rect [new_posy+y+1] [newposx+x+1].old_color
-                    self.list_of_rect [new_posy-y-1] [newposx-x-1].color=self.list_of_rect [new_posy-y-1] [newposx-x-1].old_color
+                    self.list_of_rect [new_posy+y] [newposx+x+1].color=self.list_of_rect [new_posy+y] [newposx+x+1].old_color
+                    self.list_of_rect [new_posy-y] [newposx-x-1].color=self.list_of_rect [new_posy-y] [newposx-x-1].old_color
                 else:
-                    self.list_of_rect [new_posy+x+1] [newposx+y+1].color=self.list_of_rect [new_posy+x+1] [newposx+y+1].old_color
-                    self.list_of_rect [new_posy-x-1] [newposx-y-1].color=self.list_of_rect [new_posy-x-1] [newposx-y-1].old_color
-        for y in range(0,5):
+                    self.list_of_rect [new_posy+x] [newposx+y+1].color=self.list_of_rect [new_posy+x] [newposx+y+1].old_color
+                    self.list_of_rect [new_posy-x] [newposx-y-1].color=self.list_of_rect [new_posy-x] [newposx-y-1].old_color
+        for y in range(0,4):
             for x in range(-2,2):
             
                 if self.direction=="east"or "west":
@@ -92,7 +104,7 @@ class floor(object):
                     self.list_of_rect [new_posy+(x*mult)] [newposx+(y*mult)].color=self.list_of_rect [new_posy+(x*mult)] [newposx+(y*mult)].old_color
         for y in range(-1,1):
             for x in range(0,2):
-            
+                
                 if self.direction=="east"or "west":
                     self.list_of_rect [new_posy+(y*mult*-1)] [newposx+(x*mult*-1)].color=self.list_of_rect [new_posy+(y*mult*-1)] [newposx+(x*mult*-1)].old_color
                 else:
