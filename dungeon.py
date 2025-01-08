@@ -42,8 +42,11 @@ class dungeon(object):
         Self.functions[name]=new_func
 class floor(object):
     def __init__(self,screen:new_screen,floornum:int,maxfloor:int):
+        self.directions={0:"north",2:"south",3:"east",1:"west"}
         self.maxfloor=maxfloor
+        self.dir_multiplier={"north":-1,"south":1,"east":-1,"west":1}
         self.floornum = floornum
+        self.direction="north"
         list_of_rect=[]
         self.x_detirminer=random.randint(200,400)
         self.y_detirminer=(random.randint(200,400))
@@ -59,16 +62,41 @@ class floor(object):
         self.player= self.list_of_rect[int(dimensions[1]/48)][int(dimensions[0]/48)]
         self.wall_demolisher(self.x_detirminer,self.y_detirminer) 
         self.screen=screen
-        
-
-    def see_radious(self,new_pos,radius):
-        flat_var=0-radius
+    def facing_where(self,change):
+        for i in range(0,len(change)):
+            if change[i]<0:
+                self.direction=self.directions[i]
+                
+            elif change[i]>0:
+                self.direction=self.directions[i+2]
+    def see_radious(self,new_pos):
+        print(self.direction)
         new_posy=self.find_listnumswith(new_pos)[0]
         newposx=self.find_listnumswith(new_pos)[1]
-        for y in range(flat_var,radius):
-            for x in range(flat_var,radius):
+        mult=self.dir_multiplier[self.direction]
+        #this is bugged this is suposed to put  4*5 in front of the player a 2*3 behind the player and a 4*3 on the sides
+        for x in range(0,3):
+            for y in range(-2,2):
+                if self.direction=="east"or "west":
+                    self.list_of_rect [new_posy+y+1] [newposx+x+1].color=self.list_of_rect [new_posy+y+1] [newposx+x+1].old_color
+                    self.list_of_rect [new_posy-y-1] [newposx-x-1].color=self.list_of_rect [new_posy-y-1] [newposx-x-1].old_color
+                else:
+                    self.list_of_rect [new_posy+x+1] [newposx+y+1].color=self.list_of_rect [new_posy+x+1] [newposx+y+1].old_color
+                    self.list_of_rect [new_posy-x-1] [newposx-y-1].color=self.list_of_rect [new_posy-x-1] [newposx-y-1].old_color
+        for y in range(0,5):
+            for x in range(-2,2):
             
-                self.list_of_rect [new_posy+y] [newposx+x].color=self.list_of_rect [new_posy+y] [newposx+x].old_color
+                if self.direction=="east"or "west":
+                    self.list_of_rect [new_posy+(y*mult)] [newposx+(x*mult)].color=self.list_of_rect [new_posy+(y*mult)] [newposx+(x*mult)].old_color
+                else:
+                    self.list_of_rect [new_posy+(x*mult)] [newposx+(y*mult)].color=self.list_of_rect [new_posy+(x*mult)] [newposx+(y*mult)].old_color
+        for y in range(-1,1):
+            for x in range(0,2):
+            
+                if self.direction=="east"or "west":
+                    self.list_of_rect [new_posy+(y*mult*-1)] [newposx+(x*mult*-1)].color=self.list_of_rect [new_posy+(y*mult*-1)] [newposx+(x*mult*-1)].old_color
+                else:
+                    self.list_of_rect [new_posy+(x*mult*-1)] [newposx+(y*mult*-1)].color=self.list_of_rect [new_posy+(x*mult*-1)] [newposx+(y*mult*-1)].old_color
     def find_listnums(self,player):
         relevant_info=self.screen.get_relevant_info(self.list_of_rect)
         for i in range(0,len(relevant_info)):
@@ -94,7 +122,7 @@ class floor(object):
         if key[pygame.K_w]: 
             temp_anew=self.screen.get_relevant_info(self.list_of_rect)[abs(self.find_listnums(self.player)[0]-1)][self.find_listnums(self.player)[1]]
             if temp_anew.is_wall== False:
-                self.see_radious(self.player,5)
+                self.see_radious(self.player)
                 self.change_player_pos(self.player,temp_anew)
                 self.move((self.player.x_cord,self.player.y_cord),(temp_anew.x_cord,temp_anew.y_cord))
                 self.player = temp_anew
@@ -102,7 +130,7 @@ class floor(object):
         if key[pygame.K_s]:
             temp_anew=self.screen.get_relevant_info(self.list_of_rect)[self.find_listnums(self.player)[0]+1][self.find_listnums(self.player)[1]]
             if temp_anew.is_wall== False:
-                self.see_radious(self.player,5)
+                self.see_radious(self.player)
                 self.change_player_pos(self.player,temp_anew)
                 self.move((self.player.x_cord,self.player.y_cord),(temp_anew.x_cord,temp_anew.y_cord))
                 self.player = temp_anew
@@ -110,7 +138,7 @@ class floor(object):
         if key[pygame.K_a]:
             temp_anew=self.screen.get_relevant_info(self.list_of_rect)[self.find_listnums(self.player)[0]][abs(self.find_listnums(self.player)[1]-1)]
             if temp_anew.is_wall== False:
-                self.see_radious(self.player,5)
+                self.see_radious(self.player)
                 self.change_player_pos(self.player,temp_anew)
                 self.move((self.player.x_cord,self.player.y_cord),(temp_anew.x_cord,temp_anew.y_cord))
                 self.player= temp_anew
@@ -118,7 +146,7 @@ class floor(object):
         if key[pygame.K_d]:
             temp_anew=self.screen.get_relevant_info(self.list_of_rect)[self.find_listnums(self.player)[0]][self.find_listnums(self.player)[1]+1]
             if temp_anew.is_wall== False:
-                self.see_radious(self.player,5)
+                self.see_radious(self.player)
                 self.change_player_pos(self.player,temp_anew)
                 self.move((self.player.x_cord,self.player.y_cord),(temp_anew.x_cord,temp_anew.y_cord))
                 self.player = temp_anew
@@ -129,7 +157,7 @@ class floor(object):
         tupleofdestiny=[]
         for i in range(0,len(cord1)):
             tupleofdestiny.append(cord1[i]-cord2[i])
-    
+        self.facing_where(tupleofdestiny)
         for y in range(0,len(self.list_of_rect)):
             for x in range(0,len(self.list_of_rect[y])):
                 
