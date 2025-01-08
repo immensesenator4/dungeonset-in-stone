@@ -154,6 +154,7 @@ class building_blocks(object):
         for y in range(0,len(floor.list_of_rect)):
             for x in range(0,len(floor.list_of_rect[y])):
                 floor.list_of_rect[y][x].color=floor.list_of_rect[y][x].old_color
+        time.sleep(0.20004)
 
 class Player(building_blocks):
     def __init__(play,name, cons, musclemass, muscle_density, teq, bonedensity, magic_pow, magic_teq, height, will_power, likability, visualacuity, bloodensity, motor_control, hand_eye_cordination,level) -> None:

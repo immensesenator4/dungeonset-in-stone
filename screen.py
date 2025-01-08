@@ -14,7 +14,7 @@ class new_screen:
         dimensions = pygame.display.get_desktop_sizes()[0]
         self.screen = pygame.display.set_mode(dimensions)
         self.fps = pygame.time.Clock()
-    def display_current_rects(self,rect_list:list,player):
+    def display_current_rects(self,rect_list:list):
         relevant_info=self.get_relevant_info(rect_list)
         for sub in relevant_info:
             for list in sub:
