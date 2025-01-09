@@ -89,23 +89,23 @@ class floor(object):
         #this is bugged this is suposed to put  4*5 in front of the player a 2*3 behind the player and a 4*3 on the sides
         for x in range(0,2):
             for y in range(-2,2):
-                if self.direction=="east"or "west":
+                if self.direction in ["east", "west"]:
                     self.list_of_rect [new_posy+y] [newposx+x+1].color=self.list_of_rect [new_posy+y] [newposx+x+1].old_color
                     self.list_of_rect [new_posy-y] [newposx-x-1].color=self.list_of_rect [new_posy-y] [newposx-x-1].old_color
                 else:
                     self.list_of_rect [new_posy+x] [newposx+y+1].color=self.list_of_rect [new_posy+x] [newposx+y+1].old_color
                     self.list_of_rect [new_posy-x] [newposx-y-1].color=self.list_of_rect [new_posy-x] [newposx-y-1].old_color
-        for y in range(0,4):
+        for y in range(0,5):
             for x in range(-2,2):
             
-                if self.direction=="east"or "west":
+                if self.direction in ["east", "west"]:
                     self.list_of_rect [new_posy+(y*mult)] [newposx+(x*mult)].color=self.list_of_rect [new_posy+(y*mult)] [newposx+(x*mult)].old_color
                 else:
                     self.list_of_rect [new_posy+(x*mult)] [newposx+(y*mult)].color=self.list_of_rect [new_posy+(x*mult)] [newposx+(y*mult)].old_color
         for y in range(-1,1):
             for x in range(0,2):
                 
-                if self.direction=="east"or "west":
+                if self.direction in ["east", "west"]:
                     self.list_of_rect [new_posy+(y*mult*-1)] [newposx+(x*mult*-1)].color=self.list_of_rect [new_posy+(y*mult*-1)] [newposx+(x*mult*-1)].old_color
                 else:
                     self.list_of_rect [new_posy+(x*mult*-1)] [newposx+(y*mult*-1)].color=self.list_of_rect [new_posy+(x*mult*-1)] [newposx+(y*mult*-1)].old_color
