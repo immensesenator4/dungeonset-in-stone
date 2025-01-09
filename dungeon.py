@@ -56,7 +56,7 @@ class floor(object):
     def __init__(self,screen:new_screen,floornum:int,maxfloor:int):
         self.directions={0:"north",2:"south",3:"east",1:"west"}
         self.maxfloor=maxfloor
-        self.dir_multiplier={"north":-1,"south":1,"east":-1,"west":1}
+        self.dir_multiplier={"north":1,"south":-1,"east":-1,"west":1}
         self.floornum = floornum
         self.direction="north"
         list_of_rect=[]
