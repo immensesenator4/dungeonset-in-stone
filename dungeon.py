@@ -1,5 +1,6 @@
 import random
 from screen import*
+pow()
 class dungeon(object):
     def __init__(dungeon,screen):
         dungeon.flooramnt= random.randint(3,7)
@@ -14,9 +15,6 @@ class dungeon(object):
         for dungeons in dungeon.floors:
             y+=dungeons.y_detirminer
             x+=dungeons.x_detirminer
-        print(x)
-        print(y)
-        print(dungeon.flooramnt)
         dungeon.size=x*y*dungeon.flooramnt
         dungeon.max_time= int((random.randint(dungeon.size,dungeon.size*4))/10)
     def add_time(dungeon,num):
@@ -52,6 +50,9 @@ class dungeon(object):
             count+=1
     def add_func(Self,new_func,name:str):
         Self.functions[name]=new_func
+
+
+
 class floor(object):
     def __init__(self,screen:new_screen,floornum:int,maxfloor:int):
         self.directions={0:"north",2:"south",3:"east",1:"west"}
@@ -62,6 +63,7 @@ class floor(object):
         list_of_rect=[]
         self.x_detirminer=random.randint(200,400)
         self.y_detirminer=(random.randint(200,400))
+        self.time=0
         for y in range(0,self.y_detirminer):
             temp_list=[]
             for x in range(0,self.x_detirminer):
@@ -82,13 +84,12 @@ class floor(object):
             elif change[i]>0:
                 self.direction=self.directions[i+2]
     def see_radious(self,new_pos):
-        print(self.direction)
         new_posy=self.find_listnumswith(new_pos)[0]
         newposx=self.find_listnumswith(new_pos)[1]
         mult=self.dir_multiplier[self.direction]
         #this is bugged this is suposed to put  4*5 in front of the player a 2*3 behind the player and a 4*3 on the sides
         for x in range(0,2):
-            for y in range(-2,2):
+            for y in range(-3,3):
                 if self.direction in ["east", "west"]:
                     self.list_of_rect [new_posy+y] [newposx+x+1].color=self.list_of_rect [new_posy+y] [newposx+x+1].old_color
                     self.list_of_rect [new_posy-y] [newposx-x-1].color=self.list_of_rect [new_posy-y] [newposx-x-1].old_color
@@ -163,9 +164,9 @@ class floor(object):
                 self.move((self.player.x_cord,self.player.y_cord),(temp_anew.x_cord,temp_anew.y_cord))
                 self.player = temp_anew
                         
-
+        time.sleep(0.002)
     def move(self,cord1:tuple,cord2:tuple):
-        
+        self.time+=6
         tupleofdestiny=[]
         for i in range(0,len(cord1)):
             tupleofdestiny.append(cord1[i]-cord2[i])

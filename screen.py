@@ -8,7 +8,7 @@ pygame.init()
 # dimensions = (int(dimensions[0][0]/36)*36,int(dimensions[0][1]/36)*36)
 dimensions = pygame.display.get_desktop_sizes()[0]
 
-class new_screen:
+class new_screen(object):
     def __init__(self): 
         dimensions=(1080,1080)
         dimensions = pygame.display.get_desktop_sizes()[0]
@@ -21,6 +21,7 @@ class new_screen:
                 list.show()
     def update(self):
         pygame.display.update()
+
     def get_relevant_info(self,rect:list):
         relevant_info=[]
         for i in range(0,len(rect)):

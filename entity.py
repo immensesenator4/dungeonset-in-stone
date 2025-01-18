@@ -155,7 +155,6 @@ class building_blocks(object):
         for y in range(0,len(floor.list_of_rect)):
             for x in range(0,len(floor.list_of_rect[y])):
                 floor.list_of_rect[y][x].color=floor.list_of_rect[y][x].old_color
-        time.sleep(0.20004)
     def add_time(build,dungeon):
         dungeon.time+=build.time
         build.time=0
