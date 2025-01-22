@@ -94,7 +94,38 @@ class client(object):
             s.connect((self.host, self.port)) 
             s.sendall(f"{var}=recieve".encode())
             return json.loads(s.recv(1024).decode()[0:-1])
-    def receive_obj(self,var:str,new_var:object):
+    def unsimplify(self,obj, is_dict:bool=True,replace:dict={}):
+        def alter__init__(self,new_dict:dict):
+            for key, value in new_dict.items():
+                setattr(self, key, value) 
+        funcType = types.MethodType
+
+        excludables=(int,str,float,dict,list)
+        z= json.loads(obj)
+        is_dict=isinstance(z,dict)
+        if is_dict:
+            for key,var in z.items():
+                new_var=json.loads(var)
+
+                if isinstance(new_var,excludables):
+                    if isinstance(var,list):
+                        is_items = len(var)>0
+                        
+                        if is_items:
+                            new_var= self.simplify(var,False)
+                        else:
+                            return new_var
+                    elif isinstance(var,dict):
+                        is_items = len(var)>0
+                    
+                        if is_items:
+                            z= self.simplify(var,False)
+                        else:
+                            return new_var
+
+        
+        return z
+    def receive_obj(self,var:str,new_var:object,replace:dict={}):
         def alter__init__(self,new_dict:dict):
              for key, value in new_dict.items():
                 setattr(self, key, value) 
@@ -105,6 +136,7 @@ class client(object):
             s.sendall(f"{var}=recieve".encode())
             class_param=s.recv(1024).decode()
             class_param=ast.literal_eval(class_param[0:-1])
+            class_param= self.simplify(class_param)
             new_var.__init__(class_param)
             return new_var
     def comunicate(self,content:str):

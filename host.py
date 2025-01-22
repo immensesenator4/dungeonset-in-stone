@@ -13,10 +13,140 @@ class Host(object):
             self.size=size
             self.adresses=[]
             self.record=[]
+    def simplify(self,obj, is_dict:bool=True):
+        excludables=(int,str,float,dict,list,tuple)
+        if is_dict:
+            ran=False
+            for key,var in obj.items():
+                ran=True
+                if isinstance(var,excludables):
+                    if isinstance(var,list):
+                        is_items = len(var)>0
+                        if is_items:
+                            z= self.simplify(var,False)
+                        else:
+                            is_items = False
+
+                    elif isinstance(var,dict):
+                        is_items = len(var)>0
+                        z= self.simplify(var)
+                    else:
+                        z= var
+                else:
+                    try:
+                        z= json.dumps(self.simplify(var.__dict__))
+                    except:
+                        z= key
+                obj[key]=z
+            
+            return obj
+            
+        elif isinstance(obj,list):
+            for i in range(0,len(obj)):
+                var=obj[i]
+                if isinstance(var,excludables):
+                    if isinstance(var,list):
+                        is_items = len(var)>0
+                        
+                        if is_items:
+                            z= self.simplify(var,False)
+                        else:
+                            z= var
+                    elif isinstance(var,dict):
+                        is_items = len(var)>0
+                    
+                        if is_items:
+                            z= self.simplify(var,False)
+                        else:
+                            z= var
+                    else:
+                        z= var
+                else:
+                    try:
+                        z= json.dumps(self.simplify(var.__dict__))
+                    except:
+                        z= obj[i]
+                obj[i]=z
+            
+        
+        return obj
     def store_obj(self,obj:object,obj_name:str):
-        print(obj.__dict__)
-        y = json.dumps(obj.__dict__)
+        original = obj
+        try:
+            print(original.floors)
+        except:
+            pass
+        z=self.simplify(obj.__dict__)
+        
+        y = json.dumps(z)
+        print(z)
         self.data[obj_name] = y.encode()
+        try:
+            print(json.loads(y).floors)
+        except:
+            pass
+        return original
+    def unpack(self,obj:object,is_dict:bool=True,initialization:dict={}):
+        objec=json.loads(obj)
+        excludables=(int,str,float,dict,list)
+        if is_dict:
+            ran=False
+            for key,exe in objec.items():
+                ran=True
+                var=json.loads(exe)
+                if isinstance(var,excludables):
+                    if isinstance(var,list):
+                        is_items = len(var)>0
+                        if is_items:
+                            z= self.unpack(var,False)
+                        else:
+                            is_items = False
+
+                    elif isinstance(var,dict):
+                        is_items = len(var)>0
+                        z= self.unpack(var)
+                    else:
+                        z= var
+                else:
+                    try:
+                        z= json.loads(var)
+                    except:
+                        z= key
+                obj[key]=z
+            
+            return obj
+            
+        elif isinstance(objec,list):
+            for i in range(0,len(obj)):
+                var=obj[i]
+                if isinstance(var,excludables):
+                    if isinstance(var,list):
+                        is_items = len(var)>0
+                        
+                        if is_items:
+                            z= self.unpack(var,False)
+                        else:
+                            z= var
+                    elif isinstance(var,dict):
+                        is_items = len(var)>0
+                    
+                        if is_items:
+                            z= self.unpack(var,False)
+                        else:
+                            z= var
+                    else:
+                        z= var
+                else:
+                    try:
+                        z= json.loads(self.unpack(var.__dict__))
+                    except:
+                        z= obj[i]
+                obj[i]=z
+            
+        
+        return obj
+    def recieve_obj(self,name:str,obj:object,initialization:dict={}):
+        pass
     def get_person(self):
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.bind((self.ip_address, self.port))

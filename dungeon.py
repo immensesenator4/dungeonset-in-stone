@@ -1,8 +1,7 @@
 import random
 from screen import*
-pow()
 class dungeon(object):
-    def __init__(dungeon,screen):
+    def __init__(dungeon,screen:new_screen):
         dungeon.flooramnt= random.randint(3,7)
         dungeon.time=0
         dungeon.functions={}

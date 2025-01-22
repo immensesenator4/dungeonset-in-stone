@@ -2,7 +2,6 @@ import pygame,sys
 from pygame.locals import *
 import random
 import time
-import keyboard
 pygame.init()
 # dimensions = pygame.display.get_desktop_sizes()
 # dimensions = (int(dimensions[0][0]/36)*36,int(dimensions[0][1]/36)*36)
