@@ -10,6 +10,16 @@ class client(object):
     def __init__(self,port=0):
         self.host,self.port= self.find_servers(set_port=port)
 
+    def simplify_name_func(self,obj:str):
+        shortened_name=''
+        for i in obj:
+            if i ==' ':
+                break
+            elif "<":
+                pass
+            else:
+                shortened_name+=i
+        return shortened_name
     def send_str(self,var:str,contents):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
@@ -50,11 +60,16 @@ class client(object):
             s.connect((self.host, self.port))
             s.sendall(f"{var}={y}".encode())
             return s.recv(1024)
-    def send_obj(self,var:str,contents:object):
-        y = json.dumps(contents.__dict__)
+
+    def store_obj(self,obj:object,obj_name:str):
+        copy_of=type('copy_of',obj.__class__.__bases__,dict(obj.__dict__))
+        new=copy_of()
+        z=self.simplify(new.__dict__)
+        
+        y = json.dumps(z)
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((self.host, self.port))
-            s.sendall(f"{var}={y}".encode())
+            s.sendall(f"{obj_name}={y}".encode())
             return s.recv(1024)
     def recieve_str(self,var:str):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
@@ -94,51 +109,130 @@ class client(object):
             s.connect((self.host, self.port)) 
             s.sendall(f"{var}=recieve".encode())
             return json.loads(s.recv(1024).decode()[0:-1])
-    def unsimplify(self,obj, is_dict:bool=True,replace:dict={}):
-        def alter__init__(self,new_dict:dict):
-            for key, value in new_dict.items():
-                setattr(self, key, value) 
+    def return_class(self,obj:object,ndict:dict,initialization:dict={},classes:list[object]=[]):
+        def alter__init__(self,new_dict:dict,initialization:dict={},classes:list[object]=[],unpack = self.unpack):
+                excludables=(int,str,float,dict,list,tuple,bool)
+                for key, value in new_dict.items():
+                
+                    if isinstance(value,excludables):
+                        if isinstance(value,list):
+                            is_items = len(value)>0
+                            if is_items:
+                                print(value)
+                                z= unpack(value,initialization,classes)
+                            else:
+                                z=key
+                        elif isinstance(value,dict):
+                            is_items = len(value)>0
+                            if is_items:
+                                z= unpack(value, initialization=initialization,classes=classes)
+                            else:
+                                z=value
+                        else:
+                            z= value
+                    elif value in initialization.keys():
+                        z=initialization[key]
+                    else:
+                        try:
+                            z= json.loads(value)
+                        except:
+                            z= key
+                    setattr(self, key, z) 
         funcType = types.MethodType
-
-        excludables=(int,str,float,dict,list)
-        z= json.loads(obj)
-        is_dict=isinstance(z,dict)
+        obj.__init__=funcType(alter__init__,obj)
+        x=obj.__init__(ndict,initialization,classes)
+        return x
+    def unpack(self,obj:dict|list,initialization:dict={},classes:list[object]=[]):
+        excludables=(int,str,float,dict,list,bool)
+        
+        is_dict= isinstance(obj,dict)
         if is_dict:
-            for key,var in z.items():
-                new_var=json.loads(var)
+            for key,var in obj.items():
+                z=var
+                if isinstance(var,excludables):
+                    if isinstance(var,list):
+                        is_items = len(var)>0
+                        if is_items:
+                            z= self.unpack(var,initialization,classes)
+                        else:
+                            z=var
 
-                if isinstance(new_var,excludables):
+                    elif isinstance(var,dict):
+                        is_items = len(var)>0
+                        if is_items:
+                            is_class= 'object' in var.keys()
+                            if is_class:
+                                for clas in classes:
+                                    if self.simplify_name_func(var) in str(clas):
+                                        z=self.return_class(clas,obj,initialization,classes)
+                            else:
+                                
+                                self.unpack(var,initialization,classes)
+                        else:
+                            
+                            z=var
+
+                    else:
+                        if var in initialization.keys():
+                                    z=initialization[key]
+                        else:
+                            z= var
+                
+                else:
+                    try:
+                        z= json.loads(var)
+                    except:
+                        z= key
+                obj[key]=z
+            
+            return obj
+            
+        elif isinstance(obj,list):
+            for i in range(0,len(obj)):
+                var=obj[i]
+                z=var
+                if isinstance(var,excludables):
                     if isinstance(var,list):
                         is_items = len(var)>0
                         
                         if is_items:
-                            new_var= self.simplify(var,False)
+                            z= self.unpack(var,initialization,classes)
                         else:
-                            return new_var
+                            z= var
                     elif isinstance(var,dict):
                         is_items = len(var)>0
-                    
                         if is_items:
-                            z= self.simplify(var,False)
+                            z= self.unpack(var)
                         else:
-                            return new_var
-
+                            z= var
+                    else:
+                        if var in initialization.keys():
+                            z=initialization[key]
+                        else:
+                            z= var
+                        
+                elif var in initialization.keys():
+                    z=initialization[var]
+                else:
+                    try:
+                        z= var
+                    except:
+                        z= obj[i]
+                obj[i]=z
+            
         
-        return z
-    def receive_obj(self,var:str,new_var:object,replace:dict={}):
-        def alter__init__(self,new_dict:dict):
-             for key, value in new_dict.items():
-                setattr(self, key, value) 
-        funcType = types.MethodType
-        new_var.__init__=funcType(alter__init__,new_var)
+        return obj
+    def recvall2(self,sock:socket)->bytes:
+        return sock.recv(2**255, socket.MSG_WAITALL)
+    def recieve_obj(self,name:str,obj:list[object],initialization:dict[str,object]={})->object:
+
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
             s.connect((self.host, self.port)) 
-            s.sendall(f"{var}=recieve".encode())
-            class_param=s.recv(1024).decode()
+            s.sendall(f"{name}=recieve".encode())
+            class_param=self.recvall2(s).decode()
             class_param=ast.literal_eval(class_param[0:-1])
-            class_param= self.simplify(class_param)
-            new_var.__init__(class_param)
-            return new_var
+            class_param= self.unpack(class_param,initialization,obj)
+        return class_param
     def comunicate(self,content:str):
          with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:   
             s.connect((self.host, self.port)) 
@@ -187,7 +281,67 @@ class client(object):
             
             new_ip+=char
         return net_ip
+    def simplify(self,obj:dict|list, is_dict:bool=True)->dict|list:
+        excludables=(int,str,float,dict,list,tuple,bool,bytes)
+        if is_dict:
+            ran=False
+            for key,var in obj.items():
+                ran=True
+                if isinstance(var,excludables):
+                    if isinstance(var,list):
+                        is_items = len(var)>0
+                        if is_items:
+                            z= self.simplify(var,False)
+                        else:
+                            z= var
 
+                    elif isinstance(var,dict):
+                        is_items = len(var)>0
+                        z= self.simplify(var)
+                    else:
+                        z= var
+                else:
+                    try:
+                        obj_dict=var.__dict__
+                        obj_dict['object']=self.simplify_name_func(str(obj))
+                        z= self.simplify(obj_dict)
+                    except:
+                        z= key
+                obj[key]=z
+            
+            return obj
+            
+        elif isinstance(obj,list):
+            for i in range(0,len(obj)):
+                var=obj[i]
+                if isinstance(var,excludables):
+                    if isinstance(var,list):
+                        is_items = len(var)>0
+                        
+                        if is_items:
+                            z= self.simplify(var,False)
+                        else:
+                            z= var
+                    elif isinstance(var,dict):
+                        is_items = len(var)>0
+                    
+                        if is_items:
+                            z= self.simplify(var,False)
+                        else:
+                            z= var
+                    else:
+                        z= var
+                else:
+                    try:
+                        obj_dict=var.__dict__
+                        obj_dict['object']= self.simplify_name_func(str(var))
+                        z= self.simplify(obj_dict)
+                    except:
+                        z= obj[i]
+                obj[i]=z
+            
+        
+        return obj
 # d=client(port=13455)
 # while True:
 #     while d.scan_port(d.host,d.port):

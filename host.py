@@ -85,13 +85,13 @@ class Host(object):
         
         return obj
     def store_obj(self,obj:object,obj_name:str):
-        original = obj
-        z=self.simplify(obj.__dict__)
+        copy_of=type('copy_of',obj.__class__.__bases__,dict(obj.__dict__))
+        new=copy_of()
+        z=self.simplify(new.__dict__)
         
         y = json.dumps(z)
         self.data[obj_name] = y.encode()
 
-        return original
     def return_class(self,obj:object,ndict:dict,initialization:dict={},classes:list[object]=[]):
         def alter__init__(self,new_dict:dict,initialization:dict={},classes:list[object]=[],unpack = self.unpack):
                 excludables=(int,str,float,dict,list,tuple,bool)
@@ -236,9 +236,10 @@ class Host(object):
                         print(f"{adr} is conected to network")
                     with conn:
                         while True:
-                            data = conn.recv(1024)
+                            data = conn.recv(2*255,socket.MSG_WAITALL)
                             if not data:
                                 break
+                            print(addr[0] ,": sending " + f"{data!r}")
                             if ("recieve" in f"{data!r}" ):
                                 if "file" in f"{data!r}":
                                         con=False
