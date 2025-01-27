@@ -5,7 +5,7 @@ class dungeon(object):
         dungeon.flooramnt= random.randint(3,7)
         dungeon.time=0
         dungeon.functions={}
-        dungeon.floors=[]
+        dungeon.floors:list[floor]=[]
         dungeon.screen=screen
         dungeon.currentfloor=0
         x=0

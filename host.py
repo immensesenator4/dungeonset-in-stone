@@ -8,13 +8,23 @@ class Host(object):
             self.port=port
             self.hostname = socket.gethostname()
             self.ip_address = socket.gethostbyname(self.hostname)     
-            self.data={}
+            self.data:dict[str,bytes]={}
             self.var=[]
             self.size=size
             self.adresses=[]
             self.record=[]
-    def simplify(self,obj, is_dict:bool=True):
-        excludables=(int,str,float,dict,list,tuple)
+    def simplify_name_func(self,obj:str):
+        shortened_name=''
+        for i in obj:
+            if i ==' ':
+                break
+            elif "<":
+                pass
+            else:
+                shortened_name+=i
+        return shortened_name
+    def simplify(self,obj:dict|list, is_dict:bool=True)->dict|list:
+        excludables=(int,str,float,dict,list,tuple,bool,bytes)
         if is_dict:
             ran=False
             for key,var in obj.items():
@@ -25,7 +35,7 @@ class Host(object):
                         if is_items:
                             z= self.simplify(var,False)
                         else:
-                            is_items = False
+                            z= var
 
                     elif isinstance(var,dict):
                         is_items = len(var)>0
@@ -34,7 +44,9 @@ class Host(object):
                         z= var
                 else:
                     try:
-                        z= json.dumps(self.simplify(var.__dict__))
+                        obj_dict=var.__dict__
+                        obj_dict['object']=self.simplify_name_func(str(obj))
+                        z= self.simplify(obj_dict)
                     except:
                         z= key
                 obj[key]=z
@@ -63,7 +75,9 @@ class Host(object):
                         z= var
                 else:
                     try:
-                        z= json.dumps(self.simplify(var.__dict__))
+                        obj_dict=var.__dict__
+                        obj_dict['object']= self.simplify_name_func(str(var))
+                        z= self.simplify(obj_dict)
                     except:
                         z= obj[i]
                 obj[i]=z
@@ -72,41 +86,81 @@ class Host(object):
         return obj
     def store_obj(self,obj:object,obj_name:str):
         original = obj
-        try:
-            print(original.floors)
-        except:
-            pass
         z=self.simplify(obj.__dict__)
         
         y = json.dumps(z)
-        print(z)
         self.data[obj_name] = y.encode()
-        try:
-            print(json.loads(y).floors)
-        except:
-            pass
+
         return original
-    def unpack(self,obj:object,is_dict:bool=True,initialization:dict={}):
-        objec=json.loads(obj)
-        excludables=(int,str,float,dict,list)
+    def return_class(self,obj:object,ndict:dict,initialization:dict={},classes:list[object]=[]):
+        def alter__init__(self,new_dict:dict,initialization:dict={},classes:list[object]=[],unpack = self.unpack):
+                excludables=(int,str,float,dict,list,tuple,bool)
+                for key, value in new_dict.items():
+                
+                    if isinstance(value,excludables):
+                        if isinstance(value,list):
+                            is_items = len(value)>0
+                            if is_items:
+                                print(value)
+                                z= unpack(value,initialization,classes)
+                            else:
+                                z=key
+                        elif isinstance(value,dict):
+                            is_items = len(value)>0
+                            if is_items:
+                                z= unpack(value, initialization=initialization,classes=classes)
+                            else:
+                                z=value
+                        else:
+                            z= value
+                    elif value in initialization.keys():
+                        z=initialization[key]
+                    else:
+                        try:
+                            z= json.loads(value)
+                        except:
+                            z= key
+                    setattr(self, key, z) 
+        funcType = types.MethodType
+        obj.__init__=funcType(alter__init__,obj)
+        x=obj.__init__(ndict,initialization,classes)
+        return x
+    def unpack(self,obj:dict|list,initialization:dict={},classes:list[object]=[]):
+        excludables=(int,str,float,dict,list,bool)
+        
+        is_dict= isinstance(obj,dict)
         if is_dict:
-            ran=False
-            for key,exe in objec.items():
-                ran=True
-                var=json.loads(exe)
+            for key,var in obj.items():
+                z=var
                 if isinstance(var,excludables):
                     if isinstance(var,list):
                         is_items = len(var)>0
                         if is_items:
-                            z= self.unpack(var,False)
+                            z= self.unpack(var,initialization,classes)
                         else:
-                            is_items = False
+                            z=var
 
                     elif isinstance(var,dict):
                         is_items = len(var)>0
-                        z= self.unpack(var)
+                        if is_items:
+                            is_class= 'object' in var.keys()
+                            if is_class:
+                                for clas in classes:
+                                    if self.simplify_name_func(var) in str(clas):
+                                        z=self.return_class(clas,obj,initialization,classes)
+                            else:
+                                
+                                self.unpack(var,initialization,classes)
+                        else:
+                            
+                            z=var
+
                     else:
-                        z= var
+                        if var in initialization.keys():
+                                    z=initialization[key]
+                        else:
+                            z= var
+                
                 else:
                     try:
                         z= json.loads(var)
@@ -116,37 +170,47 @@ class Host(object):
             
             return obj
             
-        elif isinstance(objec,list):
+        elif isinstance(obj,list):
             for i in range(0,len(obj)):
                 var=obj[i]
+                z=var
                 if isinstance(var,excludables):
                     if isinstance(var,list):
                         is_items = len(var)>0
                         
                         if is_items:
-                            z= self.unpack(var,False)
+                            z= self.unpack(var,initialization,classes)
                         else:
                             z= var
                     elif isinstance(var,dict):
                         is_items = len(var)>0
-                    
                         if is_items:
-                            z= self.unpack(var,False)
+                            z= self.unpack(var)
                         else:
                             z= var
                     else:
-                        z= var
+                        if var in initialization.keys():
+                            z=initialization[key]
+                        else:
+                            z= var
+                        
+                elif var in initialization.keys():
+                    z=initialization[var]
                 else:
                     try:
-                        z= json.loads(self.unpack(var.__dict__))
+                        z= var
                     except:
                         z= obj[i]
                 obj[i]=z
             
         
         return obj
-    def recieve_obj(self,name:str,obj:object,initialization:dict={}):
-        pass
+    def recieve_obj(self,name:str,obj:list[object],initialization:dict[str,object]={})->object:
+        new_data=self.data[name]
+        data= new_data.decode()
+        data=json.loads(data)
+        f=self.unpack(data,classes=obj,initialization=initialization)
+        return f
     def get_person(self):
             with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
                 s.bind((self.ip_address, self.port))
