@@ -37,6 +37,10 @@ class dungeon(object):
             return False
         else:
             return True
+    def resetScreen(self,newScreen:new_screen):
+        self.screen=newScreen
+        for i in self.floors:
+            i.resetScreen(newScreen)
     def key(self,functions:tuple,*keys:int,args:tuple=()):
         events = pygame.event.get()
         key = pygame.key.get_pressed()
@@ -59,7 +63,7 @@ class floor(object):
         self.dir_multiplier={"north":1,"south":-1,"east":-1,"west":1}
         self.floornum = floornum
         self.direction="north"
-        list_of_rect=[]
+        list_of_rect:list[list[block]]=[]
         self.x_detirminer=random.randint(200,400)
         self.y_detirminer=(random.randint(200,400))
         self.time=0
@@ -68,13 +72,18 @@ class floor(object):
             for x in range(0,self.x_detirminer):
                 temp_list.append(block(x*24,y*24,(0,0,0),screen))
             list_of_rect.append(temp_list)
-            self.list_of_rect=list_of_rect
+        self.list_of_rect=list_of_rect
         for y in range(0,len(self.list_of_rect)):
             for x in range(0,len(list_of_rect[y])):
                 self.list_of_rect[y][x].old_color=(10,70,90)
         self.player= self.list_of_rect[int(dimensions[1]/48)][int(dimensions[0]/48)]
         self.wall_demolisher(self.x_detirminer,self.y_detirminer) 
         self.screen=screen
+    def resetScreen(self,newScreen:new_screen):
+        self.screen=newScreen
+        for i in self.list_of_rect:
+            for y in i:
+                y.resetScreen(newScreen)
     def facing_where(self,change):
         for i in range(0,len(change)):
             if change[i]<0:
@@ -193,7 +202,7 @@ class floor(object):
         while size!=0:
             s=random.randint(0,4)
             match s:
-                case 0:
+                case 0: 
                     if y <5:
                         y+=1
                     else:

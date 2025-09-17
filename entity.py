@@ -218,20 +218,3 @@ class spirit_Mage(Player):
     pass
 class spirit_warrior(Player):
     pass
-n=Barbarian("wilis",20,2,3,4,5,6,7,8,9,10,11,12,13,14,15)
-###ihave been thinking abnout somethig a bit mor complicated  like a room that is proceduraly generasted and needs to be explored to see it alllb ut in == need this aproved passive searcgh radious
-f=Barbarian("fishre",20,40,2,6,7,8,9,75,11,1,21,31,4,15,0)
-for i in range(0,1):
-    n.leveler()
-for i in range(0,6):
-    f.leveler()
-# print(f.max_hp)
-# print(f.attack)
-# print(f.carrycapacity)
-# n.damage_action(f,None)
-# f.action_economy("dodge")
-# print(f.hp)
-# print(f.injury)
-# f.damage_action(n,"lof")
-# n.action_economy("defend")
-# print(n.hp)

@@ -8,11 +8,17 @@ pygame.init()
 dimensions = pygame.display.get_desktop_sizes()[0]
 
 class new_screen(object):
-    def __init__(self): 
+    def __init__(self,isscreen=False): 
         dimensions=(1080,1080)
-        dimensions = pygame.display.get_desktop_sizes()[0]
-        self.screen = pygame.display.set_mode(dimensions)
+        self.dimensions = pygame.display.get_desktop_sizes()[0]
+        if isscreen:
+            self.screen = pygame.display.set_mode(dimensions)
+        else:
+            self.screen=None
         self.fps = pygame.time.Clock()
+    def createScreen(self):
+        self.screen = pygame.display.set_mode(dimensions)
+
     def display_current_rects(self,rect_list:list):
         relevant_info=self.get_relevant_info(rect_list)
         for sub in relevant_info:
@@ -34,6 +40,7 @@ class new_screen(object):
             
                 
         return relevant_info
+    
     def get_mouse(self,rect:list,player):
         relevant_info = self.get_relevant_info(rect)
         pos= pygame.mouse.get_pos()
@@ -57,6 +64,8 @@ class block(object):
         self.screen=screen
         self.ocupation=ocupation
         self.old_color= color
+    def resetScreen(self, newScreen:new_screen):
+        self.screen=newScreen
     def show(self):
         pygame.draw.rect(self.screen.screen,self.color,(self.x_cord,self.y_cord,24,24))
 
